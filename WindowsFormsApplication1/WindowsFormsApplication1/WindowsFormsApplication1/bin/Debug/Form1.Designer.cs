@@ -38,6 +38,7 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label1 = new System.Windows.Forms.Label();
             this.btnFormat = new System.Windows.Forms.Button();
+            this.txtMessage = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -123,11 +124,20 @@
             this.btnFormat.UseVisualStyleBackColor = true;
             this.btnFormat.Click += new System.EventHandler(this.btnFormat_Click);
             // 
+            // txtMessage
+            // 
+            this.txtMessage.Location = new System.Drawing.Point(21, 299);
+            this.txtMessage.Multiline = true;
+            this.txtMessage.Name = "txtMessage";
+            this.txtMessage.Size = new System.Drawing.Size(679, 138);
+            this.txtMessage.TabIndex = 6;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(734, 462);
+            this.Controls.Add(this.txtMessage);
             this.Controls.Add(this.btnFormat);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -140,6 +150,7 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -155,6 +166,7 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnFormat;
+        private System.Windows.Forms.TextBox txtMessage;
     }
 }
 

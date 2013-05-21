@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using OfficeOpenXml;
 
 namespace WindowsFormsApplication1
 {
@@ -20,6 +21,7 @@ namespace WindowsFormsApplication1
         public Form1()
         {
             InitializeComponent();
+            textBox2.Text = @"C:\Users\gangbeng\Desktop\需替换的图片2\Excel格式化\需要格式化文件";
         }
 
         #region 浏览选文件
@@ -28,9 +30,9 @@ namespace WindowsFormsApplication1
             //初始化一个OpenFileDialog类
             OpenFileDialog fileDialog = new OpenFileDialog();
 
-            fileDialog.DefaultExt = "xls";
+            fileDialog.DefaultExt = "xlsx";
             fileDialog.Filter =
-                "Excle files (*.xls)|*.xls|Excle files (*.xlsx)|*.xlsx";
+                "Excle files (*.xlsx)|*.xlsx";
             //fileDialog.DefaultExt = ".xls,xlsx";
             fileDialog.Title = "请选择模版文件";
 
@@ -42,10 +44,10 @@ namespace WindowsFormsApplication1
                 //获取用户选择文件的后缀名
                 string extension = Path.GetExtension(fileDialog.FileName);
                 //声明允许的后缀名
-                string[] str = new string[] { ".xls", ".xlsx" };
+                string[] str = new string[] { ".xlsx" };
                 if (!str.Contains(extension))
                 {
-                    MessageBox.Show("请选择excle格式文件！","提示",MessageBoxButtons.OK);
+                    MessageBox.Show("请选择excle格式文件！", "提示", MessageBoxButtons.OK);
                 }
                 else
                 {
@@ -64,28 +66,29 @@ namespace WindowsFormsApplication1
             //folderBrowserDialog.f
 
             folderBrowserDialog.Description = "选择要格式化的的Excel所存放的文件夹";
-            
+
             // Do not allow the user to create new files via the FolderBrowserDialog.
             folderBrowserDialog.ShowNewFolderButton = false;
 
             // Default to the My Documents folder.
-            folderBrowserDialog.RootFolder = Environment.SpecialFolder.Desktop; 
+            folderBrowserDialog.RootFolder = Environment.SpecialFolder.DesktopDirectory;
 
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
                 textBox2.Text = folderBrowserDialog.SelectedPath;
             }
-         
+
 
         }
         #endregion
 
-        #region 格式化 
+        #region 格式化
         private void btnFormat_Click(object sender, EventArgs e)
         {
             if (String.IsNullOrEmpty(textBox1.Text))
             {
                 MessageBox.Show("请选择模板", "提示", MessageBoxButtons.OK);
+                return;
             }
             //获取模板数据信息
             DataSet ds = ToDataTable(textBox1.Text);
@@ -102,24 +105,154 @@ namespace WindowsFormsApplication1
             {
                 for (int i = 0; i < dt.Columns.Count; i++)
                 {
-                   if(!String.IsNullOrEmpty(dr[i].ToString()))
-                   {
-                       listColumName[i] = listColumName[i] + "," + dr[i].ToString();
-                   }
+                    if (!String.IsNullOrEmpty(dr[i].ToString()))
+                    {
+                        listColumName[i] = listColumName[i] + "," + dr[i].ToString();
+                    }
                 }
             }
+
 
             //遍历文件夹下所有Excel文件
             List<String> listFilePath = new List<string>();
             GetFileListByFolder(textBox2.Text, ref listFilePath);
-            Int32 iFileCount = listFilePath.Count;
+
+            foreach (String filepath in listFilePath)
+            {
+                DataSet dsf = ToDataTable(filepath);
+                foreach (DataTable dtf in dsf.Tables)
+                {
+                    if (dtf.Rows.Count > 1 && dtf.Columns.Count > 1)
+                    {
+                        //待格式化Excle列名
+                        List<String> listColumName2 = new List<string>();
+                        if (dtf.Columns.Count > 0)
+                        {
+                            foreach (DataColumn item in dtf.Columns)
+                            {
+                                listColumName2.Add(item.ColumnName);
+                            }
+                        }
+                        //列名对应关系
+                        Dictionary<String, String> dic = new Dictionary<string, string>();
+                        Boolean bCheckOK = true;
+                        String strErrorMessage = String.Empty;
+                        foreach (string citem in listColumName)
+                        {
+                            foreach (string newcitem in listColumName2)
+                            {
+                                if (citem.Replace("*", "").Split(',', '，').Contains(newcitem))
+                                {
+                                    dic.Add(citem.Split(',', '，')[0], newcitem);
+                                    break;
+                                }
+                            }
+                            if (citem.Contains('*') && !dic.ContainsKey(citem.Split(',', '，')[0]))
+                            {
+                                strErrorMessage += citem.Split(',', '，')[0] + "、";
+                                bCheckOK = false;
+                            }
+                        }
+                        if (!bCheckOK)
+                        {
+                            txtMessage.AppendText(filepath.Substring(filepath.LastIndexOf("\\") + 1) + "没有以下列：" + strErrorMessage.Trim('、') + "\r\n");
+                            continue;
+                        }
+
+                        DataTable newdt = GetDataTableByTempTable(dt, dtf, dic);
+
+                        //新建一个Excle
+                        //http://www.cnblogs.com/lwme/archive/2011/11/27/2265323.html
+                        //插入数据
 
 
+                        string stra = filepath.Substring(0, filepath.LastIndexOf("\\"));
+                        string strb = "格式化后_" + filepath.Substring(filepath.LastIndexOf("\\") + 1, filepath.LastIndexOf(".") - filepath.LastIndexOf("\\") - 1) + ".xlsx";
 
-            
-            
+                        FileInfo newFile = new FileInfo(stra + "\\" + strb);
+
+                        if (newFile.Exists)
+                        {
+                            newFile.Delete();  // ensures we create a new workbook
+                            newFile = new FileInfo(stra + "\\" + strb);
+                        }
+                        FileInfo tempfile = new FileInfo(textBox1.Text);
+                        using (ExcelPackage package = new ExcelPackage(newFile, tempfile))
+                        {
+                            var ws = package.Workbook.Worksheets[1];
+
+                            ws.Cells["A1"].LoadFromDataTable(newdt, true);
+                            ws.Cells["N2:N" + (dtf.Rows.Count - 1).ToString()].FormulaR1C1 = "RC[-3]*RC[-2]";
+                            package.Save();
+                            return;
+                        }
+
+                        continue;//只取一个Sheet
+
+                    }
+                }
+            }
+
         }
         #endregion
+
+        private DataTable GetDataTableByTempTable(DataTable templateTable, DataTable newDataTable, Dictionary<String, String> dic)
+        {
+            DataTable dt = templateTable.Copy();
+            dt.Clear();
+            
+
+            foreach (DataRow item in newDataTable.Rows)
+            {
+                DataRow dr = dt.NewRow();
+                foreach (var dc in dic)
+                {
+                    dr[dc.Key] = item[dc.Value];
+                }
+                dt.Rows.Add(dr);
+
+            }
+
+
+            return dt;
+
+        }
+
+
+
+
+        private void DumpExcel(DataTable tbl)
+        {
+            using (ExcelPackage pck = new ExcelPackage())
+            {
+                //Create the worksheet
+                ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Demo");
+
+                //Load the datatable into the sheet, starting from cell A1. Print the column names on row 1
+                ws.Cells["A1"].LoadFromDataTable(tbl, true);
+
+                ////Format the header for column 1-3
+                //using (ExcelRange rng = ws.Cells["A1:C1"])
+                //{
+                //    rng.Style.Font.Bold = true;
+                //    rng.Style.Fill.PatternType = ExcelFillStyle.Solid;                      //Set Pattern for the background to Solid
+                //    rng.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(79, 129, 189));  //Set color to dark blue
+                //    rng.Style.Font.Color.SetColor(Color.White);
+                //}
+
+                //Example how to Format Column 1 as numeric 
+                //using (ExcelRange col = ws.Cells[2, 1, 2 + tbl.Rows.Count, 1])
+                //{
+                //    col.Style.Numberformat.Format = "#,##0.00";
+                //    col.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                //}
+
+                ////Write it back to the client
+                //Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                //Response.AddHeader("content-disposition", "attachment;  filename=ExcelDemo.xlsx");
+                //Response.BinaryWrite(pck.GetAsByteArray());
+            }
+        }
 
         #region 遍历文件夹下所有Excle文件
         /// <summary>
@@ -127,7 +260,7 @@ namespace WindowsFormsApplication1
         /// </summary>
         /// <param name="folder"></param>
         /// <param name="listFilePath"></param>
-        public static void GetFileListByFolder(String folder,  ref List<String> listFilePath)
+        public static void GetFileListByFolder(String folder, ref List<String> listFilePath)
         {
             DirectoryInfo TheFolder = new DirectoryInfo(folder);
             //遍历文件
@@ -141,15 +274,15 @@ namespace WindowsFormsApplication1
                 {
                     listFilePath.Add(NextFile.FullName);
                 }
-                
-                
+
+
             }
             //遍历文件夹下
             foreach (DirectoryInfo NextFolder in TheFolder.GetDirectories())
             {
                 GetFileListByFolder(NextFolder.FullName, ref listFilePath);
             }
-            
+
         }
         #endregion
 

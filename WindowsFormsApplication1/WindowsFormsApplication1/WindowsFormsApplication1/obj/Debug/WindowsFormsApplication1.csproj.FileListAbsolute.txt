@@ -22,3 +22,4 @@ D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\Win
 D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Form1.resources
 D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\WindowsFormsApplication1\obj\Debug\ExcelTest.Properties.Resources.resources
 D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.csproj.GenerateResource.Cache
+D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\WindowsFormsApplication1\bin\Debug\EPPlus.xml
