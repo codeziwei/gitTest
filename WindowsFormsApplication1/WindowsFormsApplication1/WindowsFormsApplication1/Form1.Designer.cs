@@ -36,10 +36,10 @@
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.txtfileprefix = new System.Windows.Forms.TextBox();
             this.btnFormat = new System.Windows.Forms.Button();
-            this.txtMessage = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.txtMessage = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -96,7 +96,7 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.textBox3);
+            this.groupBox2.Controls.Add(this.txtfileprefix);
             this.groupBox2.Controls.Add(this.btnFormat);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.textBox2);
@@ -108,6 +108,14 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "需要格式化的Excel文件所在文件夹";
             // 
+            // txtfileprefix
+            // 
+            this.txtfileprefix.Location = new System.Drawing.Point(106, 72);
+            this.txtfileprefix.Name = "txtfileprefix";
+            this.txtfileprefix.Size = new System.Drawing.Size(100, 21);
+            this.txtfileprefix.TabIndex = 4;
+            this.txtfileprefix.Text = "格式化后_";
+            // 
             // btnFormat
             // 
             this.btnFormat.Location = new System.Drawing.Point(556, 70);
@@ -118,15 +126,6 @@
             this.btnFormat.UseVisualStyleBackColor = true;
             this.btnFormat.Click += new System.EventHandler(this.btnFormat_Click);
             // 
-            // txtMessage
-            // 
-            this.txtMessage.Location = new System.Drawing.Point(21, 310);
-            this.txtMessage.Multiline = true;
-            this.txtMessage.Name = "txtMessage";
-            this.txtMessage.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtMessage.Size = new System.Drawing.Size(679, 339);
-            this.txtMessage.TabIndex = 6;
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -136,12 +135,14 @@
             this.label1.TabIndex = 3;
             this.label1.Text = "格式化文件前缀";
             // 
-            // textBox3
+            // txtMessage
             // 
-            this.textBox3.Location = new System.Drawing.Point(106, 72);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(100, 21);
-            this.textBox3.TabIndex = 4;
+            this.txtMessage.Location = new System.Drawing.Point(21, 310);
+            this.txtMessage.Multiline = true;
+            this.txtMessage.Name = "txtMessage";
+            this.txtMessage.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtMessage.Size = new System.Drawing.Size(679, 339);
+            this.txtMessage.TabIndex = 6;
             // 
             // Form1
             // 
@@ -176,7 +177,7 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button btnFormat;
         private System.Windows.Forms.TextBox txtMessage;
-        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox txtfileprefix;
         private System.Windows.Forms.Label label1;
     }
 }

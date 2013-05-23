@@ -169,7 +169,7 @@ namespace WindowsFormsApplication1
 
 
                         string stra = filepath.Substring(0, filepath.LastIndexOf("\\"));
-                        string strb = "格式化后_" + filepath.Substring(filepath.LastIndexOf("\\") + 1, filepath.LastIndexOf(".") - filepath.LastIndexOf("\\") - 1) + ".xlsx";
+                        string strb =String.IsNullOrEmpty(txtfileprefix.Text)?"格式化后_": txtfileprefix.Text+ filepath.Substring(filepath.LastIndexOf("\\") + 1, filepath.LastIndexOf(".") - filepath.LastIndexOf("\\") - 1) + ".xlsx";
 
                         FileInfo newFile = new FileInfo(stra + "\\" + strb);
 
@@ -188,12 +188,12 @@ namespace WindowsFormsApplication1
                             ws.Cells["N2:N" + (dtf.Rows.Count ).ToString()].FormulaR1C1 = "RC[-3]*RC[-2]";
                              ws.Cells["A1"].LoadFromDataTable(newdt, true);
                              ws.Cells["L2:L" + (dtf.Rows.Count).ToString()].Style.Numberformat.Format = "##########.0";
+                           
                             ws.Cells[dtf.Rows.Count + 1, 12].Formula = "Sum(L2:L"+(dtf.Rows.Count).ToString()+")";
                             //ws.Cells["N" + (dtf.Rows.Count).ToString()+1].FormulaR1C1 = "SUM(RC[-(dtf.Rows.Count - 1).ToString()],RC[-1]";
                            
                             package.Save();
-                            txtMessage.AppendText(strb+" 成功");
-                            return;
+                            txtMessage.AppendText(strb+" 格式化成功");
                         }
                         
 
