@@ -4,12 +4,14 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using OfficeOpenXml;
+using OfficeOpenXml.Table;
 
 namespace WindowsFormsApplication1
 {
@@ -182,10 +184,18 @@ namespace WindowsFormsApplication1
                             var ws = package.Workbook.Worksheets[1];
 
                             ws.Cells["A1"].LoadFromDataTable(newdt, true);
-                            ws.Cells["N2:N" + (dtf.Rows.Count - 1).ToString()].FormulaR1C1 = "RC[-3]*RC[-2]";
+                          
+                            ws.Cells["N2:N" + (dtf.Rows.Count ).ToString()].FormulaR1C1 = "RC[-3]*RC[-2]";
+                             ws.Cells["A1"].LoadFromDataTable(newdt, true);
+                             ws.Cells["L2:L" + (dtf.Rows.Count).ToString()].Style.Numberformat.Format = "##########.0";
+                            ws.Cells[dtf.Rows.Count + 1, 12].Formula = "Sum(L2:L"+(dtf.Rows.Count).ToString()+")";
+                            //ws.Cells["N" + (dtf.Rows.Count).ToString()+1].FormulaR1C1 = "SUM(RC[-(dtf.Rows.Count - 1).ToString()],RC[-1]";
+                           
                             package.Save();
+                            txtMessage.AppendText(strb+" 成功");
                             return;
                         }
+                        
 
                         continue;//只取一个Sheet
 
