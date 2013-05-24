@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
@@ -20,10 +21,22 @@ namespace WindowsFormsApplication1
     /// </summary>
     public partial class Form1 : Form
     {
+
+        public static String CurrentPath
+        {
+            get
+            {
+                return Directory.GetCurrentDirectory().Replace(@"bin\Debug", "");
+            }
+        }
+
         public Form1()
         {
             InitializeComponent();
             textBox2.Text = @"C:\Users\gangbeng\Desktop\需替换的图片2\Excel格式化\需要格式化文件";
+            txtfileprefix.Text = ConfigurationManager.AppSettings["formatFilePrefix"];
+            textBox1.Text = ConfigurationManager.AppSettings["tempFilePath"];
+            textBox2.Text = ConfigurationManager.AppSettings["formatFilePath"];
         }
 
         #region 浏览选文件
@@ -92,6 +105,41 @@ namespace WindowsFormsApplication1
                 MessageBox.Show("请选择模板", "提示", MessageBoxButtons.OK);
                 return;
             }
+            if (String.IsNullOrEmpty(textBox2.Text))
+            {
+                MessageBox.Show("需要格式文件存放文件夹", "提示", MessageBoxButtons.OK);
+                return;
+            }
+
+
+            #region 保存填写信息
+
+#if DEBUG
+            string applicationName =
+                Environment.GetCommandLineArgs()[0];
+#else
+           string applicationName =
+          Environment.GetCommandLineArgs()[0]+ ".exe";
+#endif
+            string exePath = System.IO.Path.Combine(
+         Environment.CurrentDirectory, applicationName);
+            Configuration config = ConfigurationManager.OpenExeConfiguration(exePath);
+
+
+            //make changes
+            config.AppSettings.Settings["formatFilePrefix"].Value = txtfileprefix.Text;
+            config.AppSettings.Settings["tempFilePath"].Value = textBox1.Text;
+            config.AppSettings.Settings["formatFilePath"].Value = textBox2.Text;
+
+            //save to apply changes
+            config.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection("appSettings");
+
+            #endregion
+
+            string strfilePrefix = String.IsNullOrEmpty(txtfileprefix.Text) ? "格式化后_" : txtfileprefix.Text;
+
+
             //获取模板数据信息
             DataSet ds = ToDataTable(textBox1.Text);
             DataTable dt = ds.Tables[0];
@@ -169,7 +217,7 @@ namespace WindowsFormsApplication1
 
 
                         string stra = filepath.Substring(0, filepath.LastIndexOf("\\"));
-                        string strb =String.IsNullOrEmpty(txtfileprefix.Text)?"格式化后_": txtfileprefix.Text+ filepath.Substring(filepath.LastIndexOf("\\") + 1, filepath.LastIndexOf(".") - filepath.LastIndexOf("\\") - 1) + ".xlsx";
+                        string strb = strfilePrefix + filepath.Substring(filepath.LastIndexOf("\\") + 1, filepath.LastIndexOf(".") - filepath.LastIndexOf("\\") - 1) + ".xlsx";
 
                         FileInfo newFile = new FileInfo(stra + "\\" + strb);
 
@@ -184,18 +232,19 @@ namespace WindowsFormsApplication1
                             var ws = package.Workbook.Worksheets[1];
 
                             ws.Cells["A1"].LoadFromDataTable(newdt, true);
-                          
-                            ws.Cells["N2:N" + (dtf.Rows.Count ).ToString()].FormulaR1C1 = "RC[-3]*RC[-2]";
-                             ws.Cells["A1"].LoadFromDataTable(newdt, true);
-                             ws.Cells["L2:L" + (dtf.Rows.Count).ToString()].Style.Numberformat.Format = "##########.0";
-                           
-                            ws.Cells[dtf.Rows.Count + 1, 12].Formula = "Sum(L2:L"+(dtf.Rows.Count).ToString()+")";
+
+                            ws.Cells["N2:N" + (dtf.Rows.Count).ToString()].FormulaR1C1 = "RC[-3]*RC[-2]";
+                            ws.Cells["A1"].LoadFromDataTable(newdt, true);
+                            ws.Cells["L2:L" + (dtf.Rows.Count).ToString()].Style.Numberformat.Format = "#,##0";
+
+
+                            ws.Cells[dtf.Rows.Count + 1, 12].Formula = "Sum(L2:L" + (dtf.Rows.Count).ToString() + ")";
                             //ws.Cells["N" + (dtf.Rows.Count).ToString()+1].FormulaR1C1 = "SUM(RC[-(dtf.Rows.Count - 1).ToString()],RC[-1]";
-                           
+
                             package.Save();
-                            txtMessage.AppendText(strb+" 格式化成功");
+                            txtMessage.AppendText(strb + " 格式化成功");
                         }
-                        
+
 
                         continue;//只取一个Sheet
 
@@ -210,7 +259,7 @@ namespace WindowsFormsApplication1
         {
             DataTable dt = templateTable.Copy();
             dt.Clear();
-            
+
 
             foreach (DataRow item in newDataTable.Rows)
             {
