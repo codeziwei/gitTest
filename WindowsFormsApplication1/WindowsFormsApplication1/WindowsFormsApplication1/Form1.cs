@@ -33,7 +33,6 @@ namespace WindowsFormsApplication1
         public Form1()
         {
             InitializeComponent();
-            textBox2.Text = @"C:\Users\gangbeng\Desktop\需替换的图片2\Excel格式化\需要格式化文件";
             txtfileprefix.Text = ConfigurationManager.AppSettings["formatFilePrefix"];
             textBox1.Text = ConfigurationManager.AppSettings["tempFilePath"];
             textBox2.Text = ConfigurationManager.AppSettings["formatFilePath"];
@@ -110,6 +109,7 @@ namespace WindowsFormsApplication1
                 MessageBox.Show("需要格式文件存放文件夹", "提示", MessageBoxButtons.OK);
                 return;
             }
+            txtMessage.Text = "";
 
 
             #region 保存填写信息
@@ -139,11 +139,11 @@ namespace WindowsFormsApplication1
 
             string strfilePrefix = String.IsNullOrEmpty(txtfileprefix.Text) ? "格式化后_" : txtfileprefix.Text;
 
-
             //获取模板数据信息
             DataSet ds = ToDataTable(textBox1.Text);
             DataTable dt = ds.Tables[0];
             List<String> listColumName = new List<string>();
+            //列名
             if (dt.Columns.Count > 0)
             {
                 foreach (DataColumn item in dt.Columns)
@@ -151,6 +151,7 @@ namespace WindowsFormsApplication1
                     listColumName.Add(item.ColumnName);
                 }
             }
+            //列名 *……&￥￥
             foreach (DataRow dr in dt.Rows)
             {
                 for (int i = 0; i < dt.Columns.Count; i++)
@@ -165,11 +166,18 @@ namespace WindowsFormsApplication1
 
             //遍历文件夹下所有Excel文件
             List<String> listFilePath = new List<string>();
-            GetFileListByFolder(textBox2.Text, ref listFilePath);
+            GetFileListByFolder(textBox2.Text, ref listFilePath, strfilePrefix);
+            txtMessage.AppendText("    共有" + listFilePath.Count + "个文件需要格式化...\r\n");
 
+            int icount = 0;
             foreach (String filepath in listFilePath)
             {
+                icount++;
                 DataSet dsf = ToDataTable(filepath);
+                String strShortFilePath = filepath.Substring(filepath.LastIndexOf("\\") + 1);
+                txtMessage.AppendText("\r\n正格式化第" + icount + "个文件  " + strShortFilePath + "  ...\r\n");
+
+               
                 foreach (DataTable dtf in dsf.Tables)
                 {
                     if (dtf.Rows.Count > 1 && dtf.Columns.Count > 1)
@@ -205,48 +213,41 @@ namespace WindowsFormsApplication1
                         }
                         if (!bCheckOK)
                         {
-                            txtMessage.AppendText(filepath.Substring(filepath.LastIndexOf("\\") + 1) + "没有以下列：" + strErrorMessage.Trim('、') + "\r\n");
+                            txtMessage.AppendText("没有以下列：" + strErrorMessage.Trim('、') + "\r\n");
                             continue;
                         }
 
                         DataTable newdt = GetDataTableByTempTable(dt, dtf, dic);
-
                         //新建一个Excle
-                        //http://www.cnblogs.com/lwme/archive/2011/11/27/2265323.html
-                        //插入数据
-
-
                         string stra = filepath.Substring(0, filepath.LastIndexOf("\\"));
                         string strb = strfilePrefix + filepath.Substring(filepath.LastIndexOf("\\") + 1, filepath.LastIndexOf(".") - filepath.LastIndexOf("\\") - 1) + ".xlsx";
-
                         FileInfo newFile = new FileInfo(stra + "\\" + strb);
-
                         if (newFile.Exists)
                         {
                             newFile.Delete();  // ensures we create a new workbook
                             newFile = new FileInfo(stra + "\\" + strb);
                         }
                         FileInfo tempfile = new FileInfo(textBox1.Text);
+
+
+                        //插入数据
                         using (ExcelPackage package = new ExcelPackage(newFile, tempfile))
                         {
                             var ws = package.Workbook.Worksheets[1];
 
                             ws.Cells["A1"].LoadFromDataTable(newdt, true);
-
                             ws.Cells["N2:N" + (dtf.Rows.Count).ToString()].FormulaR1C1 = "RC[-3]*RC[-2]";
-                            ws.Cells["A1"].LoadFromDataTable(newdt, true);
-                            ws.Cells["L2:L" + (dtf.Rows.Count).ToString()].Style.Numberformat.Format = "#,##0";
-
-
-                            ws.Cells[dtf.Rows.Count + 1, 12].Formula = "Sum(L2:L" + (dtf.Rows.Count).ToString() + ")";
+                            ws.Cells["M2:M" + (dtf.Rows.Count).ToString()].FormulaR1C1 = "RC[-1]*RC[-3]";
+                            ws.Cells[dtf.Rows.Count + 1, 14].Formula = "Sum(N2:N" + (dtf.Rows.Count).ToString() + ")";
+                            ws.Cells[dtf.Rows.Count + 1, 13].Formula = "Sum(M2:M" + (dtf.Rows.Count).ToString() + ")";
+                            ws.Cells["P2:P" + (dtf.Rows.Count).ToString()].Value = strShortFilePath.Replace(".xls", "").Replace(".xlsx", "");
                             //ws.Cells["N" + (dtf.Rows.Count).ToString()+1].FormulaR1C1 = "SUM(RC[-(dtf.Rows.Count - 1).ToString()],RC[-1]";
-
                             package.Save();
-                            txtMessage.AppendText(strb + " 格式化成功");
+                            txtMessage.AppendText("√格式化成功" + "\r\n");
                         }
 
 
-                        continue;//只取一个Sheet
+                        //break;//只取一个Sheet
 
                     }
                 }
@@ -255,11 +256,40 @@ namespace WindowsFormsApplication1
         }
         #endregion
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="templateTable"></param>
+        /// <param name="newDataTable"></param>
+        /// <param name="dic"></param>
+        /// <returns></returns>
         private DataTable GetDataTableByTempTable(DataTable templateTable, DataTable newDataTable, Dictionary<String, String> dic)
         {
-            DataTable dt = templateTable.Copy();
-            dt.Clear();
 
+
+
+            //DataTable dt = templateTable.Copy();
+            //dt.Clear();
+            DataTable dt = new DataTable();
+            DataColumn column;
+
+            foreach (DataColumn item in templateTable.Columns)
+            {
+                column = new DataColumn();
+                column.DataType = System.Type.GetType("System.String");
+                column.ColumnName = item.ColumnName;
+                dt.Columns.Add(column);
+            }
+
+
+            foreach (var dc in dic)
+            {
+                if (newDataTable.Rows[0][dc.Value].GetType() != typeof(DBNull))
+                {
+                    dt.Columns[dc.Key].DataType = newDataTable.Rows[0][dc.Value].GetType();
+                }
+            }
 
             foreach (DataRow item in newDataTable.Rows)
             {
@@ -278,48 +308,13 @@ namespace WindowsFormsApplication1
         }
 
 
-
-
-        private void DumpExcel(DataTable tbl)
-        {
-            using (ExcelPackage pck = new ExcelPackage())
-            {
-                //Create the worksheet
-                ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Demo");
-
-                //Load the datatable into the sheet, starting from cell A1. Print the column names on row 1
-                ws.Cells["A1"].LoadFromDataTable(tbl, true);
-
-                ////Format the header for column 1-3
-                //using (ExcelRange rng = ws.Cells["A1:C1"])
-                //{
-                //    rng.Style.Font.Bold = true;
-                //    rng.Style.Fill.PatternType = ExcelFillStyle.Solid;                      //Set Pattern for the background to Solid
-                //    rng.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(79, 129, 189));  //Set color to dark blue
-                //    rng.Style.Font.Color.SetColor(Color.White);
-                //}
-
-                //Example how to Format Column 1 as numeric 
-                //using (ExcelRange col = ws.Cells[2, 1, 2 + tbl.Rows.Count, 1])
-                //{
-                //    col.Style.Numberformat.Format = "#,##0.00";
-                //    col.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
-                //}
-
-                ////Write it back to the client
-                //Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                //Response.AddHeader("content-disposition", "attachment;  filename=ExcelDemo.xlsx");
-                //Response.BinaryWrite(pck.GetAsByteArray());
-            }
-        }
-
         #region 遍历文件夹下所有Excle文件
         /// <summary>
         /// 文件夹下
         /// </summary>
         /// <param name="folder"></param>
         /// <param name="listFilePath"></param>
-        public static void GetFileListByFolder(String folder, ref List<String> listFilePath)
+        public static void GetFileListByFolder(String folder, ref List<String> listFilePath, String strExceptFilePrefix)
         {
             DirectoryInfo TheFolder = new DirectoryInfo(folder);
             //遍历文件
@@ -329,7 +324,7 @@ namespace WindowsFormsApplication1
                 string extension = Path.GetExtension(NextFile.FullName);
                 //声明允许的后缀名
                 string[] str = new string[] { ".xls", ".xlsx" };
-                if (str.Contains(extension))
+                if (str.Contains(extension) && !NextFile.Name.Contains(strExceptFilePrefix))
                 {
                     listFilePath.Add(NextFile.FullName);
                 }
@@ -339,7 +334,7 @@ namespace WindowsFormsApplication1
             //遍历文件夹下
             foreach (DirectoryInfo NextFolder in TheFolder.GetDirectories())
             {
-                GetFileListByFolder(NextFolder.FullName, ref listFilePath);
+                GetFileListByFolder(NextFolder.FullName, ref listFilePath,strExceptFilePrefix);
             }
 
         }
@@ -398,7 +393,7 @@ namespace WindowsFormsApplication1
             }
             catch (Exception ex)
             {
-                MessageBox.Show("打开模板文件异常", "提示", MessageBoxButtons.OK);
+                MessageBox.Show(String.Format("打开{0}异常 {1}",filePath,ex.ToString()), "提示", MessageBoxButtons.OK);
             }
             finally
             {
@@ -413,5 +408,105 @@ namespace WindowsFormsApplication1
             return ds;
         }
         #endregion
+
+        private void btnshowColumnName_Click(object sender, EventArgs e)
+        {
+
+            if (String.IsNullOrEmpty(textBox1.Text))
+            {
+                MessageBox.Show("请选择模板", "提示", MessageBoxButtons.OK);
+                return;
+            }
+            if (String.IsNullOrEmpty(textBox2.Text))
+            {
+                MessageBox.Show("需要格式文件存放文件夹", "提示", MessageBoxButtons.OK);
+                return;
+            }
+            txtMessage.Text = "";
+
+            DataSet ds = ToDataTable(textBox1.Text);
+            DataTable dt = ds.Tables[0];
+            List<String> listColumName = new List<string>();
+            //列名
+            if (dt.Columns.Count > 0)
+            {
+                foreach (DataColumn item in dt.Columns)
+                {
+                    listColumName.Add(item.ColumnName);
+                }
+            }
+            //列名 *……&￥￥
+            foreach (DataRow dr in dt.Rows)
+            {
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    if (!String.IsNullOrEmpty(dr[i].ToString()))
+                    {
+                        listColumName[i] = listColumName[i] + "," + dr[i].ToString();
+                    }
+                }
+            }
+            string strfilePrefix = String.IsNullOrEmpty(txtfileprefix.Text) ? "格式化后_" : txtfileprefix.Text;
+            //遍历文件夹下所有Excel文件
+            List<String> listFilePath = new List<string>();
+            GetFileListByFolder(textBox2.Text, ref listFilePath, strfilePrefix);
+            txtMessage.AppendText("    共有" + listFilePath.Count + "个文件需要格式化...\r\n");
+
+            int icount = 0;
+            foreach (String filepath in listFilePath)
+            {
+                icount++;
+                DataSet dsf = ToDataTable(filepath);
+                String strShortFilePath = filepath.Substring(filepath.LastIndexOf("\\") + 1);
+                txtMessage.AppendText("\r\n第" + icount + "个文件  " + strShortFilePath + "  ...\r\n");
+
+               
+                foreach (DataTable dtf in dsf.Tables)
+                {
+                    if (dtf.Rows.Count > 1 && dtf.Columns.Count > 1)
+                    {
+                        //待格式化Excle列名
+                        List<String> listColumName2 = new List<string>();
+                        if (dtf.Columns.Count > 0)
+                        {
+                            foreach (DataColumn item in dtf.Columns)
+                            {
+                                listColumName2.Add(item.ColumnName);
+                            }
+                        }
+                        txtMessage.AppendText(String.Format("所有列名：\r\n{0}", string.Join("、", listColumName2.ToArray())));
+                        //列名对应关系
+                        Dictionary<String, String> dic = new Dictionary<string, string>();
+                        Boolean bCheckOK = true;
+                        String strErrorMessage = String.Empty;
+                        foreach (string citem in listColumName)
+                        {
+                            foreach (string newcitem in listColumName2)
+                            {
+                                if (citem.Replace("*", "").Split(',', '，').Contains(newcitem))
+                                {
+                                    dic.Add(citem.Split(',', '，')[0], newcitem);
+                                    break;
+                                }
+                            }
+                            if (citem.Contains('*') && !dic.ContainsKey(citem.Split(',', '，')[0]))
+                            {
+                                strErrorMessage += citem.Split(',', '，')[0] + "、";
+                                bCheckOK = false;
+                            }
+                        }
+                        if (!bCheckOK)
+                        {
+                            txtMessage.AppendText("没有以下列：" + strErrorMessage.Trim('、') + "\r\n");
+                            continue;
+                        }
+                        
+
+                       
+
+                    }
+                }
+            }
+        }
     }
 }

@@ -40,6 +40,7 @@
             this.btnFormat = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.txtMessage = new System.Windows.Forms.TextBox();
+            this.btnshowColumnName = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -96,6 +97,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btnshowColumnName);
             this.groupBox2.Controls.Add(this.txtfileprefix);
             this.groupBox2.Controls.Add(this.btnFormat);
             this.groupBox2.Controls.Add(this.label1);
@@ -120,7 +122,7 @@
             // 
             this.btnFormat.Location = new System.Drawing.Point(556, 70);
             this.btnFormat.Name = "btnFormat";
-            this.btnFormat.Size = new System.Drawing.Size(75, 39);
+            this.btnFormat.Size = new System.Drawing.Size(75, 31);
             this.btnFormat.TabIndex = 5;
             this.btnFormat.Text = "开始格式化";
             this.btnFormat.UseVisualStyleBackColor = true;
@@ -143,6 +145,16 @@
             this.txtMessage.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.txtMessage.Size = new System.Drawing.Size(679, 339);
             this.txtMessage.TabIndex = 6;
+            // 
+            // btnshowColumnName
+            // 
+            this.btnshowColumnName.Location = new System.Drawing.Point(412, 70);
+            this.btnshowColumnName.Name = "btnshowColumnName";
+            this.btnshowColumnName.Size = new System.Drawing.Size(75, 31);
+            this.btnshowColumnName.TabIndex = 6;
+            this.btnshowColumnName.Text = "查看列名";
+            this.btnshowColumnName.UseVisualStyleBackColor = true;
+            this.btnshowColumnName.Click += new System.EventHandler(this.btnshowColumnName_Click);
             // 
             // Form1
             // 
@@ -179,6 +191,7 @@
         private System.Windows.Forms.TextBox txtMessage;
         private System.Windows.Forms.TextBox txtfileprefix;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btnshowColumnName;
     }
 }
 
