@@ -36,11 +36,13 @@
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnshowColumnName = new System.Windows.Forms.Button();
             this.txtfileprefix = new System.Windows.Forms.TextBox();
             this.btnFormat = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.txtMessage = new System.Windows.Forms.TextBox();
-            this.btnshowColumnName = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtgys = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -98,21 +100,33 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.btnshowColumnName);
+            this.groupBox2.Controls.Add(this.txtgys);
             this.groupBox2.Controls.Add(this.txtfileprefix);
             this.groupBox2.Controls.Add(this.btnFormat);
+            this.groupBox2.Controls.Add(this.label2);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.textBox2);
             this.groupBox2.Controls.Add(this.btnLookfile2);
             this.groupBox2.Location = new System.Drawing.Point(21, 112);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(679, 115);
+            this.groupBox2.Size = new System.Drawing.Size(679, 168);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "需要格式化的Excel文件所在文件夹";
             // 
+            // btnshowColumnName
+            // 
+            this.btnshowColumnName.Location = new System.Drawing.Point(412, 70);
+            this.btnshowColumnName.Name = "btnshowColumnName";
+            this.btnshowColumnName.Size = new System.Drawing.Size(75, 31);
+            this.btnshowColumnName.TabIndex = 6;
+            this.btnshowColumnName.Text = "查看列名";
+            this.btnshowColumnName.UseVisualStyleBackColor = true;
+            this.btnshowColumnName.Click += new System.EventHandler(this.btnshowColumnName_Click);
+            // 
             // txtfileprefix
             // 
-            this.txtfileprefix.Location = new System.Drawing.Point(106, 72);
+            this.txtfileprefix.Location = new System.Drawing.Point(104, 71);
             this.txtfileprefix.Name = "txtfileprefix";
             this.txtfileprefix.Size = new System.Drawing.Size(100, 21);
             this.txtfileprefix.TabIndex = 4;
@@ -131,7 +145,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(11, 75);
+            this.label1.Location = new System.Drawing.Point(9, 74);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(89, 12);
             this.label1.TabIndex = 3;
@@ -146,21 +160,28 @@
             this.txtMessage.Size = new System.Drawing.Size(679, 339);
             this.txtMessage.TabIndex = 6;
             // 
-            // btnshowColumnName
+            // label2
             // 
-            this.btnshowColumnName.Location = new System.Drawing.Point(412, 70);
-            this.btnshowColumnName.Name = "btnshowColumnName";
-            this.btnshowColumnName.Size = new System.Drawing.Size(75, 31);
-            this.btnshowColumnName.TabIndex = 6;
-            this.btnshowColumnName.Text = "查看列名";
-            this.btnshowColumnName.UseVisualStyleBackColor = true;
-            this.btnshowColumnName.Click += new System.EventHandler(this.btnshowColumnName_Click);
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(9, 108);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(41, 12);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "供应商";
+            // 
+            // txtgys
+            // 
+            this.txtgys.Location = new System.Drawing.Point(104, 105);
+            this.txtgys.Name = "txtgys";
+            this.txtgys.Size = new System.Drawing.Size(100, 21);
+            this.txtgys.TabIndex = 4;
+            this.txtgys.Text = "供应商";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(734, 686);
+            this.ClientSize = new System.Drawing.Size(734, 737);
             this.Controls.Add(this.txtMessage);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -192,6 +213,8 @@
         private System.Windows.Forms.TextBox txtfileprefix;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnshowColumnName;
+        private System.Windows.Forms.TextBox txtgys;
+        private System.Windows.Forms.Label label2;
     }
 }
 

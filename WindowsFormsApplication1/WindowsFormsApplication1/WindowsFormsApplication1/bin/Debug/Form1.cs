@@ -180,7 +180,7 @@ namespace WindowsFormsApplication1
                
                 foreach (DataTable dtf in dsf.Tables)
                 {
-                    if (dtf.Rows.Count > 1 && dtf.Columns.Count > 1)
+                    if (dtf.Rows.Count >= 1 && dtf.Columns.Count > 1)
                     {
                         //待格式化Excle列名
                         List<String> listColumName2 = new List<string>();
@@ -234,13 +234,33 @@ namespace WindowsFormsApplication1
                         using (ExcelPackage package = new ExcelPackage(newFile, tempfile))
                         {
                             var ws = package.Workbook.Worksheets[1];
-
+                            ws.Cells["A2:Z100"].Value = "";
                             ws.Cells["A1"].LoadFromDataTable(newdt, true);
-                            ws.Cells["N2:N" + (dtf.Rows.Count).ToString()].FormulaR1C1 = "RC[-3]*RC[-2]";
-                            ws.Cells["M2:M" + (dtf.Rows.Count).ToString()].FormulaR1C1 = "RC[-1]*RC[-3]";
-                            ws.Cells[dtf.Rows.Count + 1, 14].Formula = "Sum(N2:N" + (dtf.Rows.Count).ToString() + ")";
-                            ws.Cells[dtf.Rows.Count + 1, 13].Formula = "Sum(M2:M" + (dtf.Rows.Count).ToString() + ")";
-                            ws.Cells["P2:P" + (dtf.Rows.Count).ToString()].Value = strShortFilePath.Replace(".xls", "").Replace(".xlsx", "");
+                            try
+                            {
+                                ws.Cells["N2:N" + (dtf.Rows.Count + 1).ToString()].FormulaR1C1 = "RC[-3]*RC[-2]";
+                            }
+                            catch (Exception)
+                            {
+
+
+                            }
+                            try
+                            {
+                                ws.Cells["M2:M" + (dtf.Rows.Count + 1).ToString()].FormulaR1C1 = "RC[-1]*RC[-3]";
+                            }
+                            catch (Exception)
+                            {
+
+
+                            }
+
+                            ws.Cells["D2:D" + (dtf.Rows.Count + 1).ToString()].Value = txtgys.Text;
+                            ws.Cells["E2:E" + (dtf.Rows.Count + 1).ToString()].FormulaR1C1 = "CONCATENATE(RC[-1],RC[-2])";
+                            //ws.Cells[dtf.Rows.Count + 1, 14].Formula = "Sum(N2:N" + (dtf.Rows.Count).ToString() + ")";
+                            //ws.Cells[dtf.Rows.Count + 1, 14].Formula = "Sum(N2:N" + (dtf.Rows.Count).ToString() + ")";
+                            //ws.Cells[dtf.Rows.Count + 1, 13].Formula = "Sum(M2:M" + (dtf.Rows.Count).ToString() + ")";
+                            ws.Cells["P2:P" + (dtf.Rows.Count + 1).ToString()].Value = strShortFilePath.Replace(".xls", "").Replace(".xlsx", "");
                             //ws.Cells["N" + (dtf.Rows.Count).ToString()+1].FormulaR1C1 = "SUM(RC[-(dtf.Rows.Count - 1).ToString()],RC[-1]";
                             package.Save();
                             txtMessage.AppendText("√格式化成功" + "\r\n");
@@ -272,6 +292,7 @@ namespace WindowsFormsApplication1
             //DataTable dt = templateTable.Copy();
             //dt.Clear();
             DataTable dt = new DataTable();
+            dt.Clear();
             DataColumn column;
 
             foreach (DataColumn item in templateTable.Columns)
@@ -353,7 +374,7 @@ namespace WindowsFormsApplication1
             if (string.IsNullOrEmpty(fileType)) return null;
 
             if (fileType == ".xls")
-                connStr = "Provider=Microsoft.Jet.OLEDB.4.0;" + "Data Source=" + filePath + ";" + ";Extended Properties=\"Excel 8.0;HDR=YES;IMEX=1\"";
+                connStr = "Provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=" + filePath + ";" + ";Extended Properties=\"Excel 8.0;HDR=YES;IMEX=1\"";
             else
                 connStr = "Provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=" + filePath + ";" + ";Extended Properties=\"Excel 12.0;HDR=YES;IMEX=1\"";
             string sql_F = "Select * FROM [{0}]";

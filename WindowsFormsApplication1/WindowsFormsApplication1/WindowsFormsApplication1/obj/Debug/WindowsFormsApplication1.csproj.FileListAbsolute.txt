@@ -16,7 +16,6 @@ D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\Win
 D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\WindowsFormsApplication1\bin\Debug\ExcelTest.exe.config
 D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\WindowsFormsApplication1\bin\Debug\ExcelTest.exe
 D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\WindowsFormsApplication1\bin\Debug\ExcelTest.pdb
-D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.csprojResolveAssemblyReference.cache
 D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Form1.resources
 D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\WindowsFormsApplication1\obj\Debug\ExcelTest.Properties.Resources.resources
 D:\codeTest\gscGit\gitTest\WindowsFormsApplication1\WindowsFormsApplication1\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.csproj.GenerateResource.Cache
